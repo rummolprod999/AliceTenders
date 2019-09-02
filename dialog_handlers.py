@@ -1,5 +1,6 @@
 import suggests as s
 
+
 sessionStorage = {}
 
 
@@ -14,7 +15,12 @@ def handle_dialog(req, res):
             'suggests': [
                 "Продолжить",
                 "Отказаться",
+            ],
+            'suggests_t': [
+                "Искать",
+                "Закончить",
             ]
+
         }
 
         res['response'][
@@ -22,22 +28,26 @@ def handle_dialog(req, res):
         res['response']['buttons'] = s.get_first_suggests(user_id)
         return
 
-    if start_dialog(req, res):
-        return
-    if end_dialog(req, res):
+    if start_dialog(req, res, user_id):
         return
 
+    if end_dialog(req, res):
+        return
+    if find_tenders(req, res):
+        return
+    if select_req(req, res, user_id):
+        return
     res['response']['text'] = 'Извините, не могу понять вопрос.'
 
 
-def start_dialog(req, res):
+def start_dialog(req, res, user_id):
     if req['request']['original_utterance'].lower() in [
         'продолжить',
         'хорошо',
+        'продолжай',
         'давай',
         'ок',
         'да',
-        'продолжай',
     ] or req['request']['command'] == 'Продолжить':
         res['response']['text'] = 'По какому запросу вас интересуют тендеры?'
         return True
@@ -45,16 +55,44 @@ def start_dialog(req, res):
 
 
 def end_dialog(req, res):
-    if req['request']['command'] == 'Отказаться' or req['request']['original_utterance'].lower() in [
+    if req['request']['command'] == 'Отказаться' or req['request']['command'] == 'Закончить' or req['request'][
+        'original_utterance'].lower() in [
         'отказаться',
         'не хочу',
         'не надо',
         'хватит',
         'отвали',
         'стоп',
-        'нет'
+        'нет',
+        'закончить'
     ]:
         res['response']['text'] = 'Хорошо! Ждем вас в другой раз'
-        res['end_session'] = True
+        res['response']['end_session'] = True
+        return True
+    return False
+
+
+def select_req(req, res, user_id):
+    if req['request']['command'] and not res['session']['new']:
+        res['response']['text'] = 'Искать тендеры по запросу {}?'.format(
+                req['request']['command'])
+        res['response']['buttons'] = s.get_first_suggests_t(user_id)
+        return True
+    return False
+
+
+def find_tenders(req, res):
+    if (req['request']['command'] == 'Искать' or req['request'][
+        'original_utterance'].lower() in [
+            'искать',
+            'найти',
+            'поиск',
+            'ищи',
+            'найди',
+            'поищи',
+            'искать тендеры',
+            'поищи']):
+        res['response']['text'] = 'Нашел тенедры по запросу {}'.format(
+                req['request']['original_utterance'])
         return True
     return False

@@ -16,9 +16,6 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-# Хранилище данных о сессиях.
-
-
 # Задаем параметры приложения Flask.
 @app.route("/", methods=['POST'])
 def main():
