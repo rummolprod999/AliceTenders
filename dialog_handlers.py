@@ -1,3 +1,4 @@
+import db_handlers
 import suggests as s
 
 
@@ -24,7 +25,7 @@ def handle_dialog(req, res):
         }
 
         res['response'][
-            'text'] = 'Здравствуйте! Здесь вы можете найти актуальные тендеры с более чем 300 площадок России и зарубежья! Хотите продожить?'
+            'text'] = 'Здравствуйте! Здесь вы можете найти 10 акутальных тенеров по 44 и 223 ФЗ! Хотите продожить?'
         res['response']['buttons'] = s.get_first_suggests(user_id)
         return
 
@@ -33,10 +34,10 @@ def handle_dialog(req, res):
 
     if end_dialog(req, res):
         return
-    if find_tenders(req, res):
+    if find_tenders(req, res, user_id):
         return
-    if select_req(req, res, user_id):
-        return
+    # if select_req(req, res, user_id):
+    #     return
     res['response']['text'] = 'Извините, не могу понять вопрос.'
 
 
@@ -81,18 +82,14 @@ def select_req(req, res, user_id):
     return False
 
 
-def find_tenders(req, res):
-    if (req['request']['command'] == 'Искать' or req['request'][
-        'original_utterance'].lower() in [
-            'искать',
-            'найти',
-            'поиск',
-            'ищи',
-            'найди',
-            'поищи',
-            'искать тендеры',
-            'поищи']):
-        res['response']['text'] = 'Нашел тенедры по запросу {}'.format(
-                req['request']['original_utterance'])
+def find_tenders(req, res, user_id):
+    if req['request']['original_utterance']:
+        tenders = db_handlers.get_tenders_from_server(req['request']['original_utterance'])
+        string_tenders = ''
+        for t in tenders:
+            string_tenders += 'Название: {}\nСсылка: {}\n\n'.format(t['purchase_object_info'], t['href'])
+        res['response']['text'] = 'Найдены тендеры по запросу "{}"\n\n{}'.format(
+                req['request']['original_utterance'], string_tenders)
+        res['response']['buttons'] = s.get_first_suggests_t(user_id)
         return True
     return False
