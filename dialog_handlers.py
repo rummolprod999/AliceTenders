@@ -25,7 +25,7 @@ def handle_dialog(req, res):
         }
 
         res['response'][
-            'text'] = 'Здравствуйте! Здесь вы можете найти 10 акутальных тенеров по 44 и 223 ФЗ! Хотите продожить?'
+            'text'] = 'Здравствуйте! Здесь вы можете найти несколько первых актуальных тендеров по 44 и 223 ФЗ! Хотите продожить?'
         res['response']['buttons'] = s.get_first_suggests(user_id)
         return
 
@@ -87,7 +87,11 @@ def find_tenders(req, res, user_id):
         tenders = db_handlers.get_tenders_from_server(req['request']['original_utterance'])
         string_tenders = ''
         for t in tenders:
-            string_tenders += 'Название: {}\nСсылка: {}\n\n'.format(t['purchase_object_info'], t['href'])
+            n = 'Название: {}\nСсылка: {}\n\n'.format(t['purchase_object_info'], t['href'])
+            if len(n) + len(string_tenders) < 1023:
+                string_tenders += n
+            else:
+                break
         res['response']['text'] = 'Найдены тендеры по запросу "{}"\n\n{}'.format(
                 req['request']['original_utterance'], string_tenders)
         res['response']['buttons'] = s.get_first_suggests_t(user_id)
