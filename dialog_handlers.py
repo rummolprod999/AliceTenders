@@ -88,7 +88,7 @@ def find_tenders(req, res, user_id):
         string_tenders = ''
         for t in tenders:
             n = 'Название: {}\nСсылка: {}\n\n'.format(t['purchase_object_info'], t['href'])
-            if len(n) + len(string_tenders) < 1023:
+            if len(n) + len(string_tenders) < 980:
                 string_tenders += n
             else:
                 break
