@@ -1,7 +1,6 @@
 import db_handlers
 import suggests as s
 
-
 sessionStorage = {}
 
 
@@ -92,8 +91,12 @@ def find_tenders(req, res, user_id):
                 string_tenders += n
             else:
                 break
-        res['response']['text'] = 'Найдены тендеры по запросу "{}"\n\n{}'.format(
-                req['request']['original_utterance'], string_tenders)
+        if tenders:
+            res['response']['text'] = 'Найдены тендеры по запросу "{}":\n\n{}'.format(
+                    req['request']['original_utterance'], string_tenders)
+        else:
+            res['response'][
+                'text'] = 'Извините, тендеров по вашему запросу не найдено!\nПопробуйте переформулировать запрос.'
         res['response']['buttons'] = s.get_first_suggests_t(user_id)
         return True
     return False
