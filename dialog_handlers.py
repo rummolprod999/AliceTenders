@@ -24,7 +24,7 @@ def handle_dialog(req, res):
         }
 
         res['response'][
-            'text'] = 'Здравствуйте! Здесь вы можете найти несколько первых актуальных тендеров по 44 и 223 ФЗ! Хотите продолжить?'
+            'text'] = 'Здравствуйте! Здесь Вы можете найти несколько первых актуальных тендеров по 44 и 223 ФЗ! Хотите продолжить?'
         res['response']['buttons'] = s.get_first_suggests(user_id)
         return
 
@@ -33,6 +33,10 @@ def handle_dialog(req, res):
 
     if end_dialog(req, res):
         return
+
+    if help_dialog(req, res, user_id):
+        return
+
     if find_tenders(req, res, user_id):
         return
     # if select_req(req, res, user_id):
@@ -49,7 +53,19 @@ def start_dialog(req, res, user_id):
         'ок',
         'да',
     ] or req['request']['command'] == 'Продолжить':
-        res['response']['text'] = 'По какому запросу вас интересуют тендеры?'
+        res['response']['text'] = 'По какому запросу Вас интересуют тендеры?'
+        return True
+    return False
+
+
+def help_dialog(req, res, user_id):
+    if req['request']['original_utterance'].lower() in [
+        'помощь',
+        'что ты умеешь?',
+        'что ты умеешь'
+    ]:
+        res['response']['text'] = 'Я могу найти для Вас несколько тендеров по интересующему запросу. Продолжить?'
+        res['response']['buttons'] = s.get_first_suggests(user_id)
         return True
     return False
 
@@ -66,7 +82,7 @@ def end_dialog(req, res):
         'нет',
         'закончить'
     ]:
-        res['response']['text'] = 'Хорошо! Ждем вас в другой раз'
+        res['response']['text'] = 'Хорошо! Ждем Вас в другой раз'
         res['response']['end_session'] = True
         return True
     return False
