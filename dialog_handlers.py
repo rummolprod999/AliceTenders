@@ -52,6 +52,7 @@ def start_dialog(req, res, user_id):
         'давай',
         'ок',
         'да',
+        'искать',
     ] or req['request']['command'] == 'Продолжить':
         res['response']['text'] = 'По какому запросу Вас интересуют тендеры?'
         return True
